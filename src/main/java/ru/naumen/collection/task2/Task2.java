@@ -1,5 +1,10 @@
 package ru.naumen.collection.task2;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Дано:
  * <pre>
@@ -24,5 +29,23 @@ package ru.naumen.collection.task2;
  */
 public class Task2 {
 
-    // TODO
+    /**
+     * <p>Предыдущее решение содержало много кода не относящегося к задаче.
+     * В новом решении был создан лишь один класс для описания товара.</p>
+     *
+     * <p>Для быстрого доступа к сету товаров по билету хорошо подходит Map<Ticket, Set<Product>>.
+     * Товары находятся именно по номеру билета тк на его основе переопределены методы equals и hashCode.</p>
+     *
+     * <p>Сложность получения сета O(1).</p>
+     */
+    public static void main(String[] args) {
+        Map<Ticket, Set<Product>> map = new HashMap<>();
+
+        Ticket ticket = new Ticket("Mark");
+
+        map.put(ticket, new HashSet<>(Set.of(new Product("Water"), new Product("Tea"))));
+        map.get(ticket).addAll(Set.of(new Product("Cola"), new Product("Pizza")));
+
+        map.get(ticket).forEach(System.out::println);
+    }
 }
