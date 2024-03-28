@@ -1,4 +1,4 @@
-package ru.naumen.collection.task2.products;
+package ru.naumen.collection.task2;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -6,12 +6,10 @@ import java.util.UUID;
 public class Product {
 
     private final long purchaseId;
-    private final int cost;
     private final String name;
 
-    protected Product(int cost, String name) {
+    public Product(String name) {
         this.purchaseId = UUID.randomUUID().getLeastSignificantBits();
-        this.cost = cost;
         this.name = name;
     }
 
@@ -32,7 +30,6 @@ public class Product {
     public String toString() {
         return "Product{" +
                 "purchaseId=" + purchaseId +
-                ", cost=" + cost +
                 ", name='" + name + '\'' +
                 '}';
     }
