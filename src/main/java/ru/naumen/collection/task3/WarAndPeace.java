@@ -20,17 +20,19 @@ public class WarAndPeace {
             "Лев_Толстой_Война_и_мир_Том_1,_2,_3,_4_(UTF-8).txt");
 
     /**
-     * <p>LinkedHashMap хранит слово в качестве ключа и количество повторений в качестве значения.
-     * Я заглянул в метод addAll() класса TreeSet. В нём используется итератор по добавляемому сету.
-     * На моей машине итерирация по ключам LinkedHashMap происходит приблизительно в 5 раз быстрее чем HashMap.
-     * <br/>
-     * TreeSet получает список всех слов. В компаратор передаётся количество повторений слова.
-     * В данном случае сет должен реализовать интерфейс NavigableSet, чтобы иметь возможность перебирать его с конца</p>
-     * <p>Сложность алгоритма O(n * log(n)).
-     * <br/>
-     * Сложность перебора всех значений для добавления O(n).
-     * Сложность добавления в TreeSet O(log(n)).
-     * Сложность сравнения элементов O(1).</p>
+     * <p>Как и в прошлом решении все слова собираются в ключи LinkedHashMap, а значениями являются количества повторений.
+     * Сложность заполнения LinkedHashMap O(n).</p>
+     * <p>Создаётся компаратор по количеству повторений и метод, который возвражает заданное количество максимальных значений.
+     * Сложность метода O(n * log(k+1)), где k - количество максимумов, которое требуется найти (k=10).
+     * Коэффициент log(k+1) представляет из себя константу. Следственно сложность метода O(n).</p>
+     *
+     * <p>Итоговая сложность алгоритма O(n)</p>
+     *
+     * <p>В методе getMaxSet используется реализация SortedSet т.к.
+     * для быстрого поиска масимумов легче держать элементы в упорядоченном виде и выкидывать минимальный за O(1)</p>
+     *
+     * <p>По тексту задания не требуется вывести слова в каком либо порядке, поэтому TreeSet приводится к Set.
+     * Для вывода в порядке убывания количества повторений можно использовать NavigableSet ради метода descendingSet</p>
      */
     public static void main(String[] args) {
         WordParser wordParser = new WordParser(WAR_AND_PEACE_FILE_PATH);
@@ -39,13 +41,25 @@ public class WarAndPeace {
         Consumer<String> consumer = word -> wordCountMap.put(word, wordCountMap.getOrDefault(word, 0) + 1);
         wordParser.forEachWord(consumer);
 
-        NavigableSet<String> sortedSet = new TreeSet<>(Comparator.comparing(wordCountMap::get));
-        sortedSet.addAll(wordCountMap.keySet());
+        int countOfResults = 10;
+        Comparator<String> mapComparator = Comparator.comparing(wordCountMap::get);
 
-        System.out.println("наиболее используемые (TOP)");
-        sortedSet.descendingSet().stream().limit(10).forEach(System.out::println);
+        Set<String> maxSet = getMaxSet(wordCountMap.keySet(), mapComparator, countOfResults);
+        Set<String> minSet = getMaxSet(wordCountMap.keySet(), mapComparator.reversed(), countOfResults);
 
-        System.out.println("\nнаименее используемые (LAST)");
-        sortedSet.stream().limit(10).forEach(System.out::println);
+        System.out.println("MOST USED");
+        maxSet.forEach(System.out::println);
+        System.out.println("\nLEAST USED");
+        minSet.forEach(System.out::println);
+    }
+
+    private static Set<String> getMaxSet(Set<String> words, Comparator<String> comparator, int count) {
+        SortedSet<String> strings = new TreeSet<>(comparator);
+        words.forEach(w -> {
+            strings.add(w);
+            if (strings.size() > count)
+                strings.remove(strings.first());
+        });
+        return strings;
     }
 }
