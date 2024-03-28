@@ -32,19 +32,40 @@ import java.util.stream.Collectors;
 public class Task1 {
 
     /**
-     * <p>Решение принято на паре.
-     * Для решения необходимо переопределить методы equals и hashCode в классе User</p>
+     * <p>Решение было доработано для ликвидации лишнего O(n) по времени и памяти.</p>
      *
-     * <p>Выбраны сеты тк нас не интересует порядок, а быстрая вставка и получения в данном с случе важны.
-     * LinkedHashSet был выбран тк setA необходимо перебрать.
-     * HashSet используется только для нахождения пересечения.</p>
+     * <p>Иттерация по collA без создания LinkedHashSet привела бы к тому,
+     * что в итоговом листе могли бы содержаться повторения,
+     * что не укладывается в математическое понимание множества.
+     * Метод contains в collB без преобразования в сет не гарантирует константную сложность.</p>
      *
-     * <p>Сложность алгоритма O(n) тк результат собирается в один цикл,
-     * а сложность проверки наличия элемента в сете O(1)</p>
+     * <p>В данном случае была решена проблема возможного добавления дупликатов.
+     * Для этого был переписан фильтр в stream, так что при наличии элемента в сете из второй коллекции
+     * элемент удаляется из сета.
+     * В решении избегается создание LinkedHashSet, что избавлет код от лишнего O(n) по времени и по памяти.</p>
+     *
+     * <p>Также в новом решении иттерируется коллекция меньшего размера,
+     * чтобы уменьшить количество операций contains и remove.</p>
      */
     public static List<User> findDuplicates(Collection<User> collA, Collection<User> collB) {
-        Set<User> setA = new LinkedHashSet<>(collA);
-        Set<User> setB = new HashSet<>(collB);
-        return setA.stream().filter(setB::contains).collect(Collectors.toList());
+
+        if (collA.size() < collB.size()) {
+            Set<User> setB = new HashSet<>(collB);
+            return collA.stream().filter(u -> {
+                if (!setB.contains(u))
+                    return false;
+                setB.remove(u);
+                return true;
+            }).collect(Collectors.toList());
+
+        } else {
+            Set<User> setA = new HashSet<>(collA);
+            return collB.stream().filter(u -> {
+                if (!setA.contains(u))
+                    return false;
+                setA.remove(u);
+                return true;
+            }).collect(Collectors.toList());
+        }
     }
 }
